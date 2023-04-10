@@ -1,24 +1,8 @@
-# Please read!
-
-
-**For any problems running this specific bot:** [Discord Project Post](https://discord.com/channels/974519864045756446/1055336272543092757)
-
-**For general OpenAI API problems or questions:** [Discord API Discussions](https://discord.com/channels/974519864045756446/1037561178286739466)
-
-**For bugs in the template code:** create an Issue
-
-**For feature requests:** this repo is not accepting feature requests, you can discuss potential features in [Discord Project Post](https://discord.com/channels/974519864045756446/1055336272543092757)
-
-**For PRs:** only bug fix PRs wil be accepted. If you are implementing a new feature, please fork this repo.
-
-Thank you!
-
----
 # GPT Discord Bot
 
-Example Discord bot written in Python that uses the [completions API](https://beta.openai.com/docs/api-reference/completions) to have conversations with the `text-davinci-003` model, and the [moderations API](https://beta.openai.com/docs/api-reference/moderations) to filter the messages.
+Example Discord bot written in Python that uses the [chat completions API](https://platform.openai.com/docs/api-reference/chat) to have conversations with the `gpt-3.5-turbo` model, and the [moderations API](https://platform.openai.com/docs/api-reference/moderations) to filter the messages.
 
-**THIS IS NOT CHATGPT.**
+*This uses the same model that powers ChatGPT, but it does not necessarily have the same configurations as ChatGPT, so it won't necessarily give the same kind of responses like you would expect from ChatGPT.*
 
 This bot uses the [OpenAI Python Library](https://github.com/openai/openai-python) and [discord.py](https://discordpy.readthedocs.io/).
 
@@ -30,12 +14,18 @@ This bot uses the [OpenAI Python Library](https://github.com/openai/openai-pytho
 - The entire thread will be passed to the model for each request, so the model will remember previous messages in the thread
 - when the context limit is reached, or a max message count is reached in the thread, bot will close the thread
 - you can customize the bot instructions by modifying `config.yaml`
-- you can change the model, the hardcoded value is `text-davinci-003`
+- you can change the model to other chat models (e.g. GPT-4 models), the hardcoded value is `gpt-3.5-turbo`
+
+# Comparision of this model with `text-davinci-003`
+
+- It is more cheaper than the `text-davinci-003`
+- Unlike `text-davinci-003`, it cannot differentiate between users, if more than 1 users are talking to it in the same thread, it sees them all as the same user
+- It is generally more capable and optimised for chat than `text-davinci-003`
 
 # Setup
 
 1. Copy `.env.example` to `.env` and start filling in the values as detailed below
-1. Go to https://beta.openai.com/account/api-keys, create a new API key, and fill in `OPENAI_API_KEY`
+1. Go to https://platform.openai.com/account/api-keys, create a new API key, and fill in `OPENAI_API_KEY`
 1. Create your own Discord application at https://discord.com/developers/applications
 1. Go to the Bot tab and click "Add Bot"
     - Click "Reset Token" and fill in `DISCORD_BOT_TOKEN`
