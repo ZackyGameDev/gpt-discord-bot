@@ -45,7 +45,7 @@ async def generate_completion_response(
                 "system", f"Instructions for {MY_BOT_NAME}: {BOT_INSTRUCTIONS}"
             ),
             examples=MY_BOT_EXAMPLE_CONVOS,
-            convo=Conversation(messages + [Message(MY_BOT_NAME)]),
+            convo=Conversation(messages + [Message("system", "Respond to the user's above message while staying in character of your persona"), Message(MY_BOT_NAME)]),
         )
         messages = prompt.render()
 
