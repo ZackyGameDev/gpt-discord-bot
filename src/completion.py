@@ -42,24 +42,26 @@ async def generate_completion_response(
     try:
         prompt = Prompt(
             header=Message(
-                "System", f"Instructions for {MY_BOT_NAME}: {BOT_INSTRUCTIONS}"
+                "system", f"Instructions for {MY_BOT_NAME}: {BOT_INSTRUCTIONS}"
             ),
             examples=MY_BOT_EXAMPLE_CONVOS,
             convo=Conversation(messages + [Message(MY_BOT_NAME)]),
         )
-        rendered = prompt.render()
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=rendered,
-            temperature=1.0,
-            top_p=0.9,
-            max_tokens=512,
-            stop=["<|endoftext|>"],
+        messages = prompt.render()
+
+        # Logging the Messages
+        print("%"*50, "\n", "\n".join(message['role'] + ": " + message['content'] for message in messages))
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            temperature=1.2,
+            max_tokens=512
         )
-        reply = response.choices[0].text.strip()
+        reply = response['choices'][0]['message']['content'].strip()
         if reply:
             flagged_str, blocked_str = moderate_message(
-                message=(rendered + reply)[-500:], user=user
+                message=("\n".join(message['role'] + ": " + message['content'] for message in messages) + "\n" + reply)[-500:], user=user
             )
             if len(blocked_str) > 0:
                 return CompletionData(

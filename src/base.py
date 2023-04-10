@@ -1,18 +1,19 @@
 from dataclasses import dataclass
+import os
+import dacite
+import yaml
 from typing import Optional, List
 
-SEPARATOR_TOKEN = "<|endoftext|>"
-
+client_name = "Tsundere Chan"
 
 @dataclass(frozen=True)
 class Message:
     user: str
     text: Optional[str] = None
 
-    def render(self):
-        result = self.user + ":"
-        if self.text is not None:
-            result += " " + self.text
+    def render(self) -> dict:
+        result = {"role": "user" if self.user not in (client_name, "assistant", "system") else self.user, "content": self.text if self.text is not None else ""}
+        result['role'] = "assistant" if self.user in (client_name, "assistant") else result['role']
         return result
 
 
@@ -24,10 +25,8 @@ class Conversation:
         self.messages.insert(0, message)
         return self
 
-    def render(self):
-        return f"\n{SEPARATOR_TOKEN}".join(
-            [message.render() for message in self.messages]
-        )
+    def render(self) -> List[dict]:
+        return [message.render() for message in self.messages]
 
 
 @dataclass(frozen=True)
@@ -44,10 +43,10 @@ class Prompt:
     convo: Conversation
 
     def render(self):
-        return f"\n{SEPARATOR_TOKEN}".join(
+        return (
             [self.header.render()]
-            + [Message("System", "Example conversations:").render()]
-            + [conversation.render() for conversation in self.examples]
-            + [Message("System", "Current conversation:").render()]
-            + [self.convo.render()],
+            + [Message("system", "Example conversations:").render()]
+            + sum([conversation.render() for conversation in self.examples], [])
+            + [Message("system", "Current conversation:").render()]
+            + self.convo.render()
         )
