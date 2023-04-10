@@ -1,10 +1,5 @@
 from dataclasses import dataclass
-import os
-import dacite
-import yaml
 from typing import Optional, List
-
-client_name = "Tsundere Chan"
 
 @dataclass(frozen=True)
 class Message:
@@ -12,8 +7,7 @@ class Message:
     text: Optional[str] = None
 
     def render(self) -> dict:
-        result = {"role": "user" if self.user not in (client_name, "assistant", "system") else self.user, "content": self.text if self.text is not None else ""}
-        result['role'] = "assistant" if self.user in (client_name, "assistant") else result['role']
+        result = {"role": self.user, "content": self.text if self.text else ""}
         return result
 
 

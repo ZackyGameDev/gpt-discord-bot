@@ -10,7 +10,7 @@ from src.constants import (
 )
 import discord
 from src.base import Message, Prompt, Conversation
-from src.utils import split_into_shorter_messages, close_thread, logger
+from src.utils import split_into_shorter_messages, close_thread, logger, message_history_to_str
 from src.moderation import (
     send_moderation_flagged_message,
     send_moderation_blocked_message,
@@ -50,7 +50,7 @@ async def generate_completion_response(
         messages = prompt.render()
 
         # Logging the Messages
-        print("%"*50, "\n", "\n".join(message['role'] + ": " + message['content'] for message in messages))
+        logger.info("%"*50 + "\n" + message_history_to_str(messages))
         
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -61,7 +61,7 @@ async def generate_completion_response(
         reply = response['choices'][0]['message']['content'].strip()
         if reply:
             flagged_str, blocked_str = moderate_message(
-                message=("\n".join(message['role'] + ": " + message['content'] for message in messages) + "\n" + reply)[-500:], user=user
+                message=(message_history_to_str(messages) + reply)[-500:], user=user
             )
             if len(blocked_str) > 0:
                 return CompletionData(

@@ -9,6 +9,7 @@ from src.constants import (
     ACTIVATE_THREAD_PREFX,
     MAX_THREAD_MESSAGES,
     SECONDS_DELAY_RECEIVING_MSG,
+    BOT_NAME,
 )
 import asyncio
 from src.utils import (
@@ -17,6 +18,7 @@ from src.utils import (
     close_thread,
     is_last_message_stale,
     discord_message_to_message,
+    update_users,
 )
 from src import completion
 from src.completion import generate_completion_response, process_response
@@ -45,10 +47,10 @@ async def on_ready():
     for c in EXAMPLE_CONVOS:
         messages = []
         for m in c.messages:
-            if m.user in ("Lenard", client.user.name, "assistant"):
+            if m.user in (BOT_NAME, client.user.name, "assistant"):
                 messages.append(Message(user="assistant", text=m.text))
             else:
-                messages.append(m)
+                messages.append(Message(user="user", text=m.text))
         completion.MY_BOT_EXAMPLE_CONVOS.append(Conversation(messages=messages))
     await tree.sync()
 
@@ -126,7 +128,7 @@ async def chat_command(int: discord.Interaction, message: str):
         )
         async with thread.typing():
             # fetch completion
-            messages = [Message(user=user.name, text=message)]
+            messages = [Message(user="user", text=message)] # GPT-3.5 only supports "user", "system", and "assistant" as username
             response_data = await generate_completion_response(
                 messages=messages, user=user
             )
@@ -241,6 +243,7 @@ async def on_message(message: DiscordMessage):
         ]
         channel_messages = [x for x in channel_messages if x is not None]
         channel_messages.reverse()
+        channel_messages = update_users(channel_messages, {client.user.name: "assistant"}, default_user="user")
 
         # generate the response
         async with thread.typing():

@@ -6,11 +6,13 @@ import logging
 logger = logging.getLogger(__name__)
 from src.base import Message
 from discord import Message as DiscordMessage
-from typing import Optional, List
+from typing import Optional, List, Dict
 import discord
 
 from src.constants import MAX_CHARS_PER_REPLY_MSG, INACTIVATE_THREAD_PREFIX
 
+def message_history_to_str(messages: List[dict]) -> str:
+    return "\n".join(message['role'] + ": " + message['content'] for message in messages) + "\n"
 
 def discord_message_to_message(message: DiscordMessage) -> Optional[Message]:
     if (
@@ -26,6 +28,10 @@ def discord_message_to_message(message: DiscordMessage) -> Optional[Message]:
         if message.content:
             return Message(user=message.author.name, text=message.content)
     return None
+
+
+def update_users(messages: List[Message], user_map: Dict[str, str], default_user: str = "user") -> List[Message]:
+    return [Message(user_map.get(msg.user, default_user), msg.text) for msg in messages]
 
 
 def split_into_shorter_messages(message: str) -> List[str]:
