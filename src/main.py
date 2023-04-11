@@ -44,14 +44,15 @@ async def on_ready():
     logger.info(f"We have logged in as {client.user}. Invite URL: {BOT_INVITE_URL}")
     completion.MY_BOT_NAME = "assistant"
     completion.MY_BOT_EXAMPLE_CONVOS = []
-    for c in EXAMPLE_CONVOS:
-        messages = []
-        for m in c.messages:
-            if m.user in (BOT_NAME, client.user.name, "assistant"):
-                messages.append(Message(user="assistant", text=m.text))
-            else:
-                messages.append(Message(user="user", text=m.text))
-        completion.MY_BOT_EXAMPLE_CONVOS.append(Conversation(messages=messages))
+    if EXAMPLE_CONVOS:
+        for c in EXAMPLE_CONVOS:
+            messages = []
+            for m in c.messages:
+                if m.user in (BOT_NAME, client.user.name, "assistant"):
+                    messages.append(Message(user="assistant", text=m.text))
+                else:
+                    messages.append(Message(user="user", text=m.text))
+            completion.MY_BOT_EXAMPLE_CONVOS.append(Conversation(messages=messages))
     await tree.sync()
 
 

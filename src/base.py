@@ -27,7 +27,7 @@ class Conversation:
 class Config:
     name: str
     instructions: str
-    example_conversations: List[Conversation]
+    example_conversations: Optional[List[Conversation]]
 
 
 @dataclass(frozen=True)
@@ -37,10 +37,14 @@ class Prompt:
     convo: Conversation
 
     def render(self):
-        return (
+        rendered = (
             [self.header.render()]
             + [Message("system", "Example conversations:").render()]
             + sum([conversation.render() for conversation in self.examples], [])
             + [Message("system", "Current conversation:").render()]
             + self.convo.render()
         )
+        if not self.examples:
+            del rendered[1] # Remove the "Example Conversation: system thing if no examples"
+        
+        return rendered
