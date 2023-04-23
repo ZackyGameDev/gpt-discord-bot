@@ -7,9 +7,10 @@ logger = logging.getLogger(__name__)
 from src.base import Message
 from discord import Message as DiscordMessage
 from typing import Optional, List, Dict
+from pytz import timezone
 import discord
 
-from src.constants import MAX_CHARS_PER_REPLY_MSG, INACTIVATE_THREAD_PREFIX
+from src.constants import MAX_CHARS_PER_REPLY_MSG, INACTIVATE_THREAD_PREFIX, BOT_TIMEZONE
 
 def message_history_to_str(messages: List[dict]) -> str:
     return "\n".join(message['role'] + ": " + message['content'] for message in messages) + "\n"
@@ -23,15 +24,15 @@ def discord_message_to_message(message: DiscordMessage) -> Optional[Message]:
     ):
         field = message.reference.cached_message.embeds[0].fields[0]
         if field.value:
-            return Message(user=field.name, text=field.value)
+            return Message(user=field.name, timestamp=message.created_at.astimezone(timezone(BOT_TIMEZONE)), text=field.value)
     else:
         if message.content:
-            return Message(user=message.author.name, text=message.content)
+            return Message(user=message.author.name, timestamp=message.created_at.astimezone(timezone(BOT_TIMEZONE)), text=message.content)
     return None
 
 
 def update_users(messages: List[Message], user_map: Dict[str, str], default_user: str = "user") -> List[Message]:
-    return [Message(user_map.get(msg.user, default_user), msg.text) for msg in messages]
+    return [Message(user_map.get(msg.user, default_user), msg.timestamp, msg.text) for msg in messages]
 
 
 def split_into_shorter_messages(message: str) -> List[str]:

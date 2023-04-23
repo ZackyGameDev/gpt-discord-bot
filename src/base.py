@@ -1,13 +1,16 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional, List
+from pytz import timezone
 
 @dataclass(frozen=True)
 class Message:
     user: str
+    timestamp: datetime = datetime.now()
     text: Optional[str] = None
 
     def render(self) -> dict:
-        result = {"role": self.user, "content": self.text if self.text else ""}
+        result = {"role": self.user, "content": self.timestamp.strftime("[%Y-%m-%d %I:%M:%S %p] ") + (self.text if self.text else "")}
         return result
 
 
@@ -26,6 +29,7 @@ class Conversation:
 @dataclass(frozen=True)
 class Config:
     name: str
+    timezone: str
     instructions: str
     example_conversations: Optional[List[Conversation]]
 
@@ -39,9 +43,9 @@ class Prompt:
     def render(self):
         rendered = (
             [self.header.render()]
-            + [Message("system", "Example conversations:").render()]
+            + [Message("system", text="Example conversations:").render()]
             + sum([conversation.render() for conversation in self.examples], [])
-            + [Message("system", "Current conversation:").render()]
+            + [Message("system", text="Current conversation:").render()]
             + self.convo.render()
         )
         if not self.examples:

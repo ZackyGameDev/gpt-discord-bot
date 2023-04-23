@@ -7,6 +7,7 @@ from src.constants import (
     BOT_INSTRUCTIONS,
     BOT_NAME,
     EXAMPLE_CONVOS,
+    BOT_TIMEZONE,
 )
 import discord
 from src.base import Message, Prompt, Conversation
@@ -15,9 +16,12 @@ from src.moderation import (
     send_moderation_flagged_message,
     send_moderation_blocked_message,
 )
+from datetime import datetime
+from pytz import timezone
 
 MY_BOT_NAME = BOT_NAME
 MY_BOT_EXAMPLE_CONVOS = EXAMPLE_CONVOS
+MY_BOT_TIMEZONE = BOT_TIMEZONE
 
 
 class CompletionResult(Enum):
@@ -42,10 +46,10 @@ async def generate_completion_response(
     try:
         prompt = Prompt(
             header=Message(
-                "system", f"Instructions for {MY_BOT_NAME}: {BOT_INSTRUCTIONS}"
+                "system", text=f"Instructions for {MY_BOT_NAME}: {BOT_INSTRUCTIONS}"
             ),
             examples=MY_BOT_EXAMPLE_CONVOS,
-            convo=Conversation(messages + [Message("system", "Respond to the user's above message while staying in character of your persona"), Message(MY_BOT_NAME)]),
+            convo=Conversation(messages + [Message("system", datetime.now().astimezone(timezone(MY_BOT_TIMEZONE)), "Respond to the user's above message while staying in character of your persona. \nToday's date is: " + datetime.now().strftime("%Y-%m-%d") + "\nCurrent time is " + datetime.now().strftime("%I:%M:%S %p"))]),
         )
         messages = prompt.render()
 
@@ -59,6 +63,7 @@ async def generate_completion_response(
             max_tokens=512
         )
         reply = response['choices'][0]['message']['content'].strip()
+        logger.info("Reply generated: " + reply)
         if reply:
             flagged_str, blocked_str = moderate_message(
                 message=(message_history_to_str(messages) + reply)[-500:], user=user
@@ -115,6 +120,10 @@ async def process_response(
                 )
             )
         else:
+            if len(reply_text) >= len("[1999-12-03 01:01:01 AM] "):
+                while reply_text[23:25] == "] " and reply_text.startswith("["): # The bot has a funny habbit of generating its own timestamp.
+                    logger.warning("Bot response cleaned: "+reply_text[:25])    # prompting doesn't seem to make it stop, so manually removing
+                    reply_text = reply_text[25:]                                # it from the response is the best I can do.
             shorter_response = split_into_shorter_messages(reply_text)
             for r in shorter_response:
                 sent_message = await thread.send(r)

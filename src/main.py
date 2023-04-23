@@ -10,6 +10,7 @@ from src.constants import (
     MAX_THREAD_MESSAGES,
     SECONDS_DELAY_RECEIVING_MSG,
     BOT_NAME,
+    BOT_TIMEZONE,
 )
 import asyncio
 from src.utils import (
@@ -27,6 +28,7 @@ from src.moderation import (
     send_moderation_blocked_message,
     send_moderation_flagged_message,
 )
+from pytz import timezone
 
 logging.basicConfig(
     format="[%(asctime)s] [%(filename)s:%(lineno)d] %(message)s", level=logging.INFO
@@ -43,6 +45,7 @@ tree = discord.app_commands.CommandTree(client)
 async def on_ready():
     logger.info(f"We have logged in as {client.user}. Invite URL: {BOT_INVITE_URL}")
     completion.MY_BOT_NAME = "assistant"
+    completion.BOT_TIMEZONE = BOT_TIMEZONE
     completion.MY_BOT_EXAMPLE_CONVOS = []
     if EXAMPLE_CONVOS:
         for c in EXAMPLE_CONVOS:
@@ -129,7 +132,7 @@ async def chat_command(int: discord.Interaction, message: str):
         )
         async with thread.typing():
             # fetch completion
-            messages = [Message(user="user", text=message)] # GPT-3.5 only supports "user", "system", and "assistant" as username
+            messages = [Message(user="user", timestamp=int.created_at.astimezone(timezone(BOT_TIMEZONE)), text=message)] # GPT-3.5 only supports "user", "system", and "assistant" as username
             response_data = await generate_completion_response(
                 messages=messages, user=user
             )

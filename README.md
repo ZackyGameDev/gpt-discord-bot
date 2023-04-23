@@ -1,3 +1,11 @@
+# Timestamps
+An attempt to make the language model aware of the current date and time, and the date and time of all the messages in the chat history.
+
+This gives the bot additional abilities:
+- It can tell you what date and time it is.
+- It can keep track of how long you've been doing something, if you just tell it to start tracking or stop tracking
+- It generally has more context to work with now.
+
 # GPT Discord Bot
 
 Example Discord bot written in Python that uses the [chat completions API](https://platform.openai.com/docs/api-reference/chat) to have conversations with the `gpt-3.5-turbo` model, and the [moderations API](https://platform.openai.com/docs/api-reference/moderations) to filter the messages.
