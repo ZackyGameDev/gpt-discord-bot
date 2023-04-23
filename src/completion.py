@@ -124,6 +124,8 @@ async def process_response(
                 while reply_text[23:25] == "] " and reply_text.startswith("["): # The bot has a funny habbit of generating its own timestamp.
                     logger.warning("Bot response cleaned: "+reply_text[:25])    # prompting doesn't seem to make it stop, so manually removing
                     reply_text = reply_text[25:]                                # it from the response is the best I can do.
+                    if len(reply_text) < len("[1999-12-03 01:01:01 AM] "):
+                        break
             shorter_response = split_into_shorter_messages(reply_text)
             for r in shorter_response:
                 sent_message = await thread.send(r)
