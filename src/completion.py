@@ -49,7 +49,7 @@ async def generate_completion_response(
                 "system", text=f"Instructions for {MY_BOT_NAME}: {BOT_INSTRUCTIONS}"
             ),
             examples=MY_BOT_EXAMPLE_CONVOS,
-            convo=Conversation(messages + [Message("system", datetime.now().astimezone(timezone(MY_BOT_TIMEZONE)), "Respond to the user's above message while staying in character of your persona. \nToday's date is: " + datetime.now().strftime("%Y-%m-%d") + "\nCurrent time is " + datetime.now().strftime("%I:%M:%S %p"))]),
+            convo=Conversation(messages + [Message("system", datetime.now().astimezone(timezone(MY_BOT_TIMEZONE)), "Respond to the user's above message while staying in character of your persona. \nToday's date is: " + datetime.now().astimezone(timezone(MY_BOT_TIMEZONE)).strftime("%Y-%m-%d") + "\nCurrent time is " + datetime.now().astimezone(timezone(MY_BOT_TIMEZONE)).strftime("%I:%M:%S %p"))]),
         )
         messages = prompt.render()
 
