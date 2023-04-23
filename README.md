@@ -3,7 +3,8 @@ An attempt to make the language model aware of the current date and time, and th
 
 This gives the bot additional abilities:
 - It can tell you what date and time it is.
-- It can keep track of how long you've been doing something, if you just tell it to start tracking or stop tracking
+- It can keep track of how long you've been doing something, if you just tell it to start tracking or stop tracking.
+- It now has more context to work with, when you ask it to maintain a todo list or such.
 - It generally has more context to work with now.
 
 # GPT Discord Bot
